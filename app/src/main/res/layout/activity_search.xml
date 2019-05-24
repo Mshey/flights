@@ -76,6 +76,8 @@
                 android:layout_height="wrap_content"
                 android:text="@string/search"
                 android:layout_gravity="center"/>
+
+            <include layout="@layout/content_main" />
         </LinearLayout>
 
     </LinearLayout>

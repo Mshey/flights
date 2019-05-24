@@ -9,6 +9,8 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
@@ -17,6 +19,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.example.a3.adapters.FlightAdapter;
 import com.example.a3.model.Ticket;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -35,7 +38,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
 
     private DrawerLayout drawerLayout;
     private static final String TAG = "SearchActivity";
-    private List<Ticket> list = new ArrayList<>();
+    private List<Ticket> listofTickets = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,7 +69,8 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
-
+                //or at least an alert
+                System.out.println("The read failed: " + databaseError.getCode());
             }
         });
 
@@ -97,6 +101,11 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             }
         });
 
+        RecyclerView recyclerView = findViewById(R.id.recyclerview);
+        final FlightAdapter adapter = new FlightAdapter(this);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
         findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -104,10 +113,10 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
                 EditText where = findViewById(R.id.where);
                 EditText from = findViewById(R.id.from);
                 TextView date = findViewById(R.id.date);
-                String dateString[] = date.getText().toString().split("/");
+                String[] dateString = date.getText().toString().split("/");
+                List<Ticket> foundTickets = new ArrayList<>();
 
-
-                for (Ticket t: list){
+                for (Ticket t: listofTickets){
 //                    Log.d(TAG, "" + String.valueOf(t.getDate().getYear() + 1900).equals(dateString[0]));
 //                    Log.d(TAG, String.valueOf(t.getDate().getMonth() + 1));
 //                    Log.d(TAG, String.valueOf(t.getDate().getDate()));
@@ -118,15 +127,20 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
                         t.getDate().getYear() + 1900 == Integer.parseInt(dateString[0]) &&
                         t.getDate().getMonth() + 1 == Integer.parseInt(dateString[1]) &&
                         t.getDate().getDate() == Integer.parseInt(dateString[2])) {
+                        foundTickets.add(t);
                         Log.d(TAG, "found");
                     }
                 }
+
+                adapter.setTickets(foundTickets);
             }
         });
+
+
     }
 
     private void addToTheList(Ticket ticket) {
-        list.add(ticket);
+        listofTickets.add(ticket);
     }
 
     @Override
