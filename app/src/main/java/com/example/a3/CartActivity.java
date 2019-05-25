@@ -1,12 +1,16 @@
 package com.example.a3;
 
-import android.os.AsyncTask;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.NavigationView;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 
 import com.example.a3.adapters.CartAdapter;
@@ -22,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class CartActivity extends AppCompatActivity implements View.OnClickListener {
+public class CartActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private static final String TAG = "CartActivity";
     private static final String USERS = "users";
@@ -30,9 +34,9 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     private static final String ORDERS = "orders";
     private static final String TICKETS = "tickets";
 
-    private List<String> keyList = new ArrayList<>();
+    private DrawerLayout drawerLayout;
+
     private List<Ticket> ticketList = new ArrayList<>();
-    private List<Ticket> tickets = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,30 +55,20 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
                 .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
                 .child(CART);
 
-        DatabaseReference refForTickets = FirebaseDatabase.getInstance().getReference()
-                .child(TICKETS);
-
-//        try {
-//            keyList = new CartAsyncTask().execute().get();
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        } catch (ExecutionException e) {
-//            e.printStackTrace();
-//        }
-
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                MyCallback myCallback = o -> {
-                    Log.d(TAG, "adding key" + (String)o);
-                    Integer index = Integer.parseInt((String)o) - 1;
-                    if (ticketList.isEmpty()) Log.d(TAG, "ticketList is empty");
-                    else tickets.add(ticketList.get(index));
-                };
+                MyCallback myCallback = adapter::addToTickets;
                 for(DataSnapshot ds: dataSnapshot.getChildren()) {
                     if (ds.getValue(Boolean.class)) {
                         Log.d(TAG, "key from firebase: " + ds.getKey());
-                        myCallback.onCallBack(ds.getKey());
+                        int index = Integer.parseInt(Objects.requireNonNull(ds.getKey())) - 1;
+                        Log.d(TAG, "adding key: " + ds.getKey() + " index: " + index);
+                        if (ticketList.get(index) == null) Log.d(TAG, "ticketList[index] is null");
+                        else {
+                            myCallback.onCallBack(ticketList.get(index));
+                        }
+
                     }
                 }
             }
@@ -86,26 +80,22 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        if (keyList.isEmpty()) {
-            Log.d(TAG, "keyList is empty");
-        }
-        else
-        for (String s:keyList) {
-            Log.d(TAG, "keyList: " + s);
-        }
+        DatabaseReference refForTickets = FirebaseDatabase.getInstance().getReference()
+                .child(TICKETS);
 
         refForTickets.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 MyCallback myCallback = o -> {
                     Log.d(TAG, "adding ticket");
-                    ticketList.add((Ticket)o);
+                    ticketList.add(o);
+                    //adapter.addToTickets(o);
                 };
                 for (DataSnapshot ds: dataSnapshot.getChildren()){
                     Log.d(TAG, "keys from tickets: " + ds.getKey());
-                    if (keyList.contains(ds.getKey())) {
+                    //if (keyList.contains(ds.getKey())) {
                         myCallback.onCallBack(ds.getValue(Ticket.class));
-                    }
+                    //}
                 }
             }
 
@@ -115,32 +105,13 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        adapter.setTickets(tickets);
     }
-
-//    private void removeFromTickets(String s){
-//        for(Ticket t:ticketList){
-//            if (t.getId().equals(s)){
-//                ticketList.remove(t);
-//            }
-//        }
-//    }
-//
-    private void addToKeys(String key){
-        Log.d(TAG, "added to keyList: " + key);
-        keyList.add(key);
-        for(String s:keyList){
-            Log.d(TAG, "for in addToKeys: " + s);
-        }
-    }
-//
-//    private void addToTickets(Ticket ticket) {
-//        Log.d(TAG, "added to ticketList: " + ticket.getId());
-//        ticketList.add(ticket);
-//    }
 
     private void initListeners(){
         findViewById(R.id.finalize).setOnClickListener(this);
+        drawerLayout = findViewById(R.id.cart_layout);
+        NavigationView navigationView = findViewById(R.id.menu_view);
+        navigationView.setNavigationItemSelectedListener(this);
     }
 
     @Override
@@ -153,7 +124,76 @@ public class CartActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void finalizeOrder(){
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference()
+                .child(USERS)
+                .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                .child(CART);
 
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for(DataSnapshot ds: dataSnapshot.getChildren()) {
+                    if (ds.getValue(Boolean.class)) {
+                        Log.d(TAG, "key from firebase: " + ds.getKey());
+                        int index = Integer.parseInt(Objects.requireNonNull(ds.getKey())) - 1;
+                        Log.d(TAG, "adding key: " + ds.getKey() + " index: " + index);
+                        if (ticketList.get(index) == null) Log.d(TAG, "ticketList[index] is null");
+                        else {
+                            DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                            mDatabase.child(USERS)
+                                    .child(FirebaseAuth.getInstance().getUid())
+                                    .child(ORDERS)
+                                    .push()
+                                    .child(ds.getKey())
+                                    .setValue(true);
+
+                            mDatabase.child(USERS)
+                                    .child(FirebaseAuth.getInstance().getUid())
+                                    .child(CART)
+                                    .child(ds.getKey())
+                                    .setValue(false);
+                        }
+
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+                //or at least an alert
+                System.out.println("The read failed: " + databaseError.getCode());
+            }
+        });
+    }
+
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.flights:
+                finish();
+                startActivity(new Intent(getApplicationContext(), SearchActivity.class));
+                break;
+            case R.id.orders:
+                finish();
+                startActivity(new Intent(getApplicationContext(), OrdersActivity.class));
+                break;
+            case R.id.logout:
+                finish();
+                FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+                firebaseAuth.signOut();
+                startActivity(new Intent(getApplicationContext(), MainActivity.class));
+                break;
+        }
+        drawerLayout.closeDrawer(GravityCompat.START);
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)) {
+            drawerLayout.closeDrawer(GravityCompat.START);
+        }
+        else super.onBackPressed();
     }
 
 }

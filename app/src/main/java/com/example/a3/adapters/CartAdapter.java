@@ -12,18 +12,13 @@ import android.widget.TextView;
 
 import com.example.a3.R;
 import com.example.a3.model.Ticket;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private static final String TAG = "CartAdapter";
-    private static final String CART = "cart";
-    private static final String USERS = "users";
 
     class CartViewHolder extends RecyclerView.ViewHolder {
         private final TextView cartItemView;
@@ -38,11 +33,13 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private final LayoutInflater mInflater;
     private List<Ticket> tickets;
+    private List<String> keys;
     private Context context;
 
     public CartAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
         this.context = context;
+        tickets = new ArrayList<>();
     }
 
     @NonNull
@@ -60,37 +57,43 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             String s = current.getFrom() + " - " + current.getTo() + ": " + current.getDate();
             holder.cartItemView.setText(s);
 
-//            holder.layout.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    Log.d(TAG,"onClick: clicked on:" + tickets.get(position));
-//                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-//                    mDatabase.child(USERS)
-//                            .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
-//                            .child(CART)
-//                            .child(tickets.get(position).getId())
-//                            .setValue(true);
-//
-////                    Intent intent = new Intent(context, MenuActivity.class);
-////                    intent.putExtra("id", (position + 1));
-////                    context.startActivity(intent);
-//
-//                }
-//            });
-
         } else {
             // Covers the case of data not being ready yet.
             holder.cartItemView.setText("No items in cart");
         }
+
+//        if (keys != null) {
+//            final String current = keys.get(position);
+//            holder.cartItemView.setText(current);
+//        }
+//        else {
+//            Log.d(TAG, "no items in cart");
+//            holder.cartItemView.setText("No items in cart");
+//        }
     }
 
     public void setTickets(List<Ticket> tickets){
+        Log.d(TAG, "set tickets");
         this.tickets = tickets;
         notifyDataSetChanged();
     }
 
-    // getItemCount() is called many times, and when it is first called,
-    // restaurants has not been updated (means initially, it's null, and we can't return null).
+    public void setKeys(List<String> key){
+        Log.d(TAG, "added keys");
+        keys = key;
+        notifyDataSetChanged();
+    }
+
+    public void addToTickets(Ticket t) {
+        if (t==null) Log.d(TAG, "ticket is null");
+        else if (tickets == null) Log.d(TAG, "tickets is null");
+        else {
+            Log.d(TAG, "added to tickets");
+            tickets.add(t);
+        }
+        notifyDataSetChanged();
+    }
+
     @Override
     public int getItemCount() {
         if (tickets != null)
