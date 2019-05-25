@@ -25,29 +25,32 @@
             app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
             android:elevation="4dp"/>
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/fragment_container"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
             android:padding="10dp">
+
             <TextView
                 android:id="@+id/date"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
+                android:layout_height="wrap_content"/>
 
             <Button
                 android:id="@+id/selectDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="@string/date_select"
-                android:layout_gravity="center"/>
+                android:layout_below="@id/date"/>
 
             <TextView
+                android:id="@+id/text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/from"/>
+                android:text="@string/from"
+                android:layout_below="@id/selectDate"/>
 
             <EditText
                 android:id="@+id/from"
@@ -55,12 +58,15 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:hint="@string/from_where"
-                android:inputType="text"/>
+                android:inputType="text"
+                android:layout_below="@id/text"/>
 
             <TextView
+                android:id="@+id/text2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/to"/>
+                android:text="@string/to"
+                android:layout_below="@id/from"/>
 
             <EditText
                 android:id="@+id/where"
@@ -68,17 +74,33 @@
                 android:layout_height="wrap_content"
                 android:background="@color/colorPrimary"
                 android:hint="@string/where_to"
-                android:inputType="text"/>
+                android:inputType="text"
+                android:layout_below="@id/text2"/>
 
             <Button
                 android:id="@+id/search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
                 android:text="@string/search"
-                android:layout_gravity="center"/>
+                android:layout_below="@id/where"/>
 
-            <include layout="@layout/content_main" />
-        </LinearLayout>
+            <include layout="@layout/content_main"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_below="@id/search"/>
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:src="@drawable/ic_cart"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"/>
+
+        </RelativeLayout>
 
     </LinearLayout>
 

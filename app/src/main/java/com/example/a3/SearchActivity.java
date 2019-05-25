@@ -1,10 +1,12 @@
 package com.example.a3;
 
 import android.app.DatePickerDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -39,6 +41,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
     private DrawerLayout drawerLayout;
     private static final String TAG = "SearchActivity";
     private List<Ticket> listofTickets = new ArrayList<>();
+    private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,6 +139,13 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             }
         });
 
+        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+                startActivity(new Intent(context, CartActivity.class));
+            }
+        });
 
     }
 
