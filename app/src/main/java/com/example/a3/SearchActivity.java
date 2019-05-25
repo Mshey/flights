@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -32,21 +31,23 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
-public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+public class SearchActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener, View.OnClickListener {
 
     private DrawerLayout drawerLayout;
     private static final String TAG = "SearchActivity";
-    private List<Ticket> listofTickets = new ArrayList<>();
+    private static final String TICKETS = "tickets";
+    private List<Ticket> listOfTickets = new ArrayList<>();
     private Context context = this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
+
+        initListeners();
 
         drawerLayout = findViewById(R.id.drawer_layout);
 
@@ -56,7 +57,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("tickets");
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child(TICKETS);
 
         ref.addValueEventListener(new ValueEventListener() {
             @Override
@@ -64,7 +65,7 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
 
                 for(DataSnapshot ds : dataSnapshot.getChildren()) {
                     Ticket ticket = ds.getValue(Ticket.class);
-                    Log.d(TAG, "ticket stuff:" + ticket.getId() + " " + ticket.getFrom() + ticket.getTo() + ticket.getDate());
+                    Log.d(TAG, "ticket stuff:" + Objects.requireNonNull(ticket).getId() + " " + ticket.getFrom() + ticket.getTo() + ticket.getDate());
                     addToTheList(ticket);
                 }
 
@@ -77,80 +78,87 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
             }
         });
 
-        final TextView textView = findViewById(R.id.date);
+    }
 
-        findViewById(R.id.selectDate).setOnClickListener(new View.OnClickListener() {
+    private void initListeners(){
+        findViewById(R.id.selectDate).setOnClickListener(this);
+        findViewById(R.id.search).setOnClickListener(this);
+        findViewById(R.id.fab).setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.selectDate:
+                makeCalendar();
+                break;
+            case R.id.search:
+                search();
+                break;
+            case R.id.fab:
+                finish();
+                startActivity(new Intent(context, CartActivity.class));
+                break;
+        }
+    }
+
+    private void makeCalendar(){
+        Calendar c = Calendar.getInstance();
+        int day = c.get(Calendar.DAY_OF_MONTH);
+        int month = c.get(Calendar.MONTH);
+        int year = c.get(Calendar.YEAR);
+
+        Log.d(TAG, "calendar things: " + day + " " + month + " " + year);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(SearchActivity.this, new DatePickerDialog.OnDateSetListener() {
             @Override
-            public void onClick(View v) {
-                Calendar c = Calendar.getInstance();
-                int day = c.get(Calendar.DAY_OF_MONTH);
-                int month = c.get(Calendar.MONTH);
-                int year = c.get(Calendar.YEAR);
-
-                Log.d(TAG, "calendar things: " + day + " " + month + " " + year);
-
-                DatePickerDialog datePickerDialog = new DatePickerDialog(SearchActivity.this, new DatePickerDialog.OnDateSetListener() {
-                    @Override
-                    public void onDateSet(DatePicker view, int myear, int mmonth, int dayOfMonth) {
-                        mmonth+=1;
-                        String s = myear + "/" + mmonth + "/" + dayOfMonth;
-                        textView.setText(s);
-                    }
-                }, day, month, year);
-
-                datePickerDialog.show();
-                datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
-                datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+            public void onDateSet(DatePicker view, int myear, int mmonth, int dayOfMonth) {
+                mmonth+=1;
+                String s = myear + "/" + mmonth + "/" + dayOfMonth;
+                TextView textView = findViewById(R.id.date);
+                textView.setText(s);
             }
-        });
+        }, day, month, year);
 
+        datePickerDialog.show();
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_NEGATIVE).setTextColor(Color.BLACK);
+        datePickerDialog.getButton(DatePickerDialog.BUTTON_POSITIVE).setTextColor(Color.BLACK);
+    }
+
+    private void search(){
         RecyclerView recyclerView = findViewById(R.id.recyclerview);
         final FlightAdapter adapter = new FlightAdapter(this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        findViewById(R.id.search).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG, "search button pushed");
-                EditText where = findViewById(R.id.where);
-                EditText from = findViewById(R.id.from);
-                TextView date = findViewById(R.id.date);
-                String[] dateString = date.getText().toString().split("/");
-                List<Ticket> foundTickets = new ArrayList<>();
+        Log.d(TAG, "search button pushed");
+        EditText where = findViewById(R.id.where);
+        EditText from = findViewById(R.id.from);
+        TextView date = findViewById(R.id.date);
+        String[] dateString = date.getText().toString().split("/");
+        List<Ticket> foundTickets = new ArrayList<>();
 
-                for (Ticket t: listofTickets){
+        for (Ticket t: listOfTickets){
 //                    Log.d(TAG, "" + String.valueOf(t.getDate().getYear() + 1900).equals(dateString[0]));
 //                    Log.d(TAG, String.valueOf(t.getDate().getMonth() + 1));
 //                    Log.d(TAG, String.valueOf(t.getDate().getDate()));
 //                    Log.d(TAG, t.getFrom() + " - " + from.getText().toString() + ": " + t.getFrom().equals(from.getText().toString()));
 //                    Log.d(TAG, t.getTo() + " - " + where.getText().toString() + ": " + where.getText().toString().equals(t.getTo()));
-                    if (t.getTo().equals(where.getText().toString()) &&
-                        t.getFrom().equals(from.getText().toString()) &&
-                        t.getDate().getYear() + 1900 == Integer.parseInt(dateString[0]) &&
-                        t.getDate().getMonth() + 1 == Integer.parseInt(dateString[1]) &&
-                        t.getDate().getDate() == Integer.parseInt(dateString[2])) {
-                        foundTickets.add(t);
-                        Log.d(TAG, "found");
-                    }
-                }
-
-                adapter.setTickets(foundTickets);
+            if (t.getTo().equals(where.getText().toString()) &&
+                    t.getFrom().equals(from.getText().toString()) &&
+                    t.getDate().getYear() + 1900 == Integer.parseInt(dateString[0]) &&
+                    t.getDate().getMonth() + 1 == Integer.parseInt(dateString[1]) &&
+                    t.getDate().getDate() == Integer.parseInt(dateString[2])) {
+                foundTickets.add(t);
+                Log.d(TAG, "found");
             }
-        });
+        }
 
-        findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                finish();
-                startActivity(new Intent(context, CartActivity.class));
-            }
-        });
-
+        adapter.setTickets(foundTickets);
     }
 
     private void addToTheList(Ticket ticket) {
-        listofTickets.add(ticket);
+        listOfTickets.add(ticket);
     }
 
     @Override
