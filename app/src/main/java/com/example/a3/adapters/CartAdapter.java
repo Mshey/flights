@@ -33,12 +33,9 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     private final LayoutInflater mInflater;
     private List<Ticket> tickets;
-    private List<String> keys;
-    private Context context;
 
     public CartAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-        this.context = context;
         tickets = new ArrayList<>();
     }
 
@@ -61,27 +58,6 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             // Covers the case of data not being ready yet.
             holder.cartItemView.setText("No items in cart");
         }
-
-//        if (keys != null) {
-//            final String current = keys.get(position);
-//            holder.cartItemView.setText(current);
-//        }
-//        else {
-//            Log.d(TAG, "no items in cart");
-//            holder.cartItemView.setText("No items in cart");
-//        }
-    }
-
-    public void setTickets(List<Ticket> tickets){
-        Log.d(TAG, "set tickets");
-        this.tickets = tickets;
-        notifyDataSetChanged();
-    }
-
-    public void setKeys(List<String> key){
-        Log.d(TAG, "added keys");
-        keys = key;
-        notifyDataSetChanged();
     }
 
     public void addToTickets(Ticket t) {

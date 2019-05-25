@@ -21,6 +21,7 @@
         <activity android:name=".SearchActivity" />
         <activity android:name=".OrdersActivity" />
         <activity android:name=".CartActivity" />
+        <activity android:name=".OrderDetailsActivity" />
     </application>
 
 </manifest>
