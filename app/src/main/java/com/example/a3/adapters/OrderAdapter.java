@@ -1,6 +1,5 @@
 package com.example.a3.adapters;
 
-import android.arch.lifecycle.LiveData;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -53,14 +52,11 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
         if (orderIds != null) {
             final String current = orderIds.get(position);
             holder.orderItemView.setText(current);
-            holder.orderItemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Log.d(TAG, "clicked: " + current);
-                    Intent intent = new Intent(context, OrderDetailsActivity.class);
-                    intent.putExtra("orderId", current);
-                    context.startActivity(intent);
-                }
+            holder.orderItemView.setOnClickListener(v -> {
+                Log.d(TAG, "clicked: " + current);
+                Intent intent = new Intent(context, OrderDetailsActivity.class);
+                intent.putExtra("orderId", current);
+                context.startActivity(intent);
             });
 
         } else {
@@ -78,12 +74,6 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.OrderViewHol
     public void addToOrderIds(String s){
         Log.d(TAG, "add to orderIDs");
         orderIds.add(s);
-        notifyDataSetChanged();
-    }
-
-    public void setOrderIds(List<String> orderIds) {
-        Log.d(TAG, "set ids");
-        this.orderIds = orderIds;
         notifyDataSetChanged();
     }
 }

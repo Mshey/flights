@@ -18,8 +18,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
 public class OrdersActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
@@ -28,14 +26,10 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
     private static final String USERS = "users";
     private static final String ORDERS = "orders";
 
-    private List<String> orderIds;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_orders);
-
-        orderIds = new ArrayList<>();
 
         NavigationView navigationView = findViewById(R.id.menu_view);
         navigationView.setNavigationItemSelectedListener(this);
@@ -68,11 +62,6 @@ public class OrdersActivity extends AppCompatActivity implements NavigationView.
         });
 
         //adapter.setOrderIds(orderIds);
-    }
-
-    private void addToOrderId(String s) {
-        Log.d(TAG, "added to orderIds");
-        orderIds.add(s);
     }
 
     @Override

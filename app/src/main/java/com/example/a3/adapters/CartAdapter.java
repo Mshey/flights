@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.a3.R;
@@ -22,12 +21,10 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
 
     class CartViewHolder extends RecyclerView.ViewHolder {
         private final TextView cartItemView;
-        private final LinearLayout layout;
 
         private CartViewHolder(View itemView) {
             super(itemView);
             cartItemView = itemView.findViewById(R.id.textView);
-            layout = itemView.findViewById(R.id.recycler_view_item);
         }
     }
 

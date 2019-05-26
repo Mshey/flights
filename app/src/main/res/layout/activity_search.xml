@@ -77,13 +77,21 @@
                 android:inputType="text"
                 android:layout_below="@id/text2"/>
 
+            <CheckBox
+                android:id="@+id/b_f"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/b_f"
+                android:textColor="@color/colorText"
+                android:layout_below="@id/where"/>
+
             <Button
                 android:id="@+id/search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
                 android:text="@string/search"
-                android:layout_below="@id/where"/>
+                android:layout_below="@id/b_f"/>
 
             <include layout="@layout/content_main"
                 android:layout_height="wrap_content"

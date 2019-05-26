@@ -30,8 +30,6 @@ public class OrderDetailsActivity extends AppCompatActivity {
     private static final String TICKETS = "tickets";
     private String orderId = "0";
 
-    private DrawerLayout drawerLayout;
-
     private List<Ticket> ticketList = new ArrayList<>();
 
     @Override

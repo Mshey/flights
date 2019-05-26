@@ -1,7 +1,6 @@
 package com.example.a3;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TextInputEditText;
@@ -12,9 +11,6 @@ import android.support.v7.widget.AppCompatTextView;
 import android.view.View;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
@@ -97,16 +93,13 @@ public class RegisterActivity extends AppCompatActivity implements View.OnClickL
      */
     private void addToFirebaseUsers() {
 
-        firebaseAuth.createUserWithEmailAndPassword(textInputEditTextEmail.getText().toString().trim(), textInputEditTextPassword.getText().toString().trim())
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            Toast.makeText(RegisterActivity.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
-                        }
-                        else {
-                            Toast.makeText(RegisterActivity.this, "Could not register", Toast.LENGTH_SHORT).show();
-                        }
+        firebaseAuth.createUserWithEmailAndPassword(Objects.requireNonNull(textInputEditTextEmail.getText()).toString().trim(), Objects.requireNonNull(textInputEditTextPassword.getText()).toString().trim())
+                .addOnCompleteListener(this, task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(RegisterActivity.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
+                    }
+                    else {
+                        Toast.makeText(RegisterActivity.this, "Could not register", Toast.LENGTH_SHORT).show();
                     }
                 });
 

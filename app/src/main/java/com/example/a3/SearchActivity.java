@@ -16,7 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.DatePicker;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -110,14 +110,11 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
 
         Log.d(TAG, "calendar things: " + day + " " + month + " " + year);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(SearchActivity.this, new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int myear, int mmonth, int dayOfMonth) {
-                mmonth+=1;
-                String s = myear + "/" + mmonth + "/" + dayOfMonth;
-                TextView textView = findViewById(R.id.date);
-                textView.setText(s);
-            }
+        DatePickerDialog datePickerDialog = new DatePickerDialog(SearchActivity.this, (view, myear, mmonth, dayOfMonth) -> {
+            mmonth+=1;
+            String s = myear + "/" + mmonth + "/" + dayOfMonth;
+            TextView textView = findViewById(R.id.date);
+            textView.setText(s);
         }, day, month, year);
 
         datePickerDialog.show();
@@ -137,18 +134,23 @@ public class SearchActivity extends AppCompatActivity implements NavigationView.
         TextView date = findViewById(R.id.date);
         String[] dateString = date.getText().toString().split("/");
         List<Ticket> foundTickets = new ArrayList<>();
+        Calendar calendar = Calendar.getInstance();
 
+        CheckBox checkBox = findViewById(R.id.b_f);
         for (Ticket t: listOfTickets){
-//                    Log.d(TAG, "" + String.valueOf(t.getDate().getYear() + 1900).equals(dateString[0]));
-//                    Log.d(TAG, String.valueOf(t.getDate().getMonth() + 1));
-//                    Log.d(TAG, String.valueOf(t.getDate().getDate()));
-//                    Log.d(TAG, t.getFrom() + " - " + from.getText().toString() + ": " + t.getFrom().equals(from.getText().toString()));
-//                    Log.d(TAG, t.getTo() + " - " + where.getText().toString() + ": " + where.getText().toString().equals(t.getTo()));
+            calendar.setTimeInMillis(t.getDate().getTime());
             if (t.getTo().equals(where.getText().toString()) &&
                     t.getFrom().equals(from.getText().toString()) &&
-                    t.getDate().getYear() + 1900 == Integer.parseInt(dateString[0]) &&
-                    t.getDate().getMonth() + 1 == Integer.parseInt(dateString[1]) &&
-                    t.getDate().getDate() == Integer.parseInt(dateString[2])) {
+                    calendar.get(Calendar.YEAR) == Integer.parseInt(dateString[0]) &&
+                    calendar.get(Calendar.MONTH) == Integer.parseInt(dateString[1]) &&
+                    calendar.get(Calendar.DAY_OF_MONTH) == Integer.parseInt(dateString[2])) {
+                foundTickets.add(t);
+                Log.d(TAG, "found");
+            }
+
+            if (checkBox.isChecked() &&
+                    t.getTo().equals(from.getText().toString()) &&
+                    t.getFrom().equals(where.getText().toString())) {
                 foundTickets.add(t);
                 Log.d(TAG, "found");
             }

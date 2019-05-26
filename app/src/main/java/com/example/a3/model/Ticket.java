@@ -14,8 +14,6 @@ public class Ticket {
 
     private static final String USERS = "users";
     private static final String CART = "cart";
-    private static final String ORDERS = "orders";
-    private static final String TICKETS = "tickets";
 
     public Ticket(String id, String from, String to, Date date) {
         this.id = id;
@@ -60,21 +58,4 @@ public class Ticket {
         this.date = date;
     }
 
-    public void addTicket() {
-       // DatabaseReference m
-    }
-
-    public void addUser(String name) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child(USERS).child(name).setValue("new user");
-    }
-
-    public void addTicketToCart(Ticket ticket) {
-        DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child(USERS)
-                .child("user1")
-                .child(CART)
-                .child(ticket.getId())
-                .setValue(true);
-    }
 }

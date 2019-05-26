@@ -38,11 +38,9 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightView
 
     private final LayoutInflater mInflater;
     private List<Ticket> tickets;
-    private Context context;
 
     public FlightAdapter(Context context) {
         mInflater = LayoutInflater.from(context);
-        this.context = context;
     }
 
     @NonNull
@@ -60,22 +58,19 @@ public class FlightAdapter extends RecyclerView.Adapter<FlightAdapter.FlightView
             String s = current.getFrom()+current.getTo()+current.getDate();
             holder.flightItemView.setText(s);
 
-            holder.layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Log.d(TAG,"onClick: clicked on:" + tickets.get(position));
-                    DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
-                    mDatabase.child(USERS)
-                            .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
-                            .child(CART)
-                            .child(tickets.get(position).getId())
-                            .setValue(true);
+            holder.layout.setOnClickListener(view -> {
+                Log.d(TAG,"onClick: clicked on:" + tickets.get(position));
+                DatabaseReference mDatabase = FirebaseDatabase.getInstance().getReference();
+                mDatabase.child(USERS)
+                        .child(Objects.requireNonNull(FirebaseAuth.getInstance().getUid()))
+                        .child(CART)
+                        .child(tickets.get(position).getId())
+                        .setValue(true);
 
 //                    Intent intent = new Intent(context, MenuActivity.class);
 //                    intent.putExtra("id", (position + 1));
 //                    context.startActivity(intent);
 
-                }
             });
 
         } else {
